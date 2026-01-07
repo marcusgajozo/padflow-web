@@ -8,15 +8,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    outputs:
-      image_tag: ${{ github.ref_name }} # Exporta a tag da imagem para o próximo job
+    # Não precisamos mais exportar a tag para o próximo job,
+    # pois o Portainer já sabe qual tag baixar baseada na configuração dele.
 
     steps:
-      # Checkout do código
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Login seguro no GitHub Container Registry
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
@@ -24,13 +22,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.PADFLOW_PACKAGES }}
 
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -38,26 +34,16 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/${{ github.repository }}:${{ github.ref_name }}
-          build-args: |
-            VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}
-            VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+            ghcr.io/${{ github.repository }}:latest
           cache-from: type=registry,ref=ghcr.io/${{ github.repository }}:buildcache
           cache-to: type=registry,ref=ghcr.io/${{ github.repository }}:buildcache,mode=max
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
-
     steps:
-      - name: Deploy to server via SSH
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            echo ${{ secrets.PADFLOW_PACKAGES }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            cd projects/padflow/
-            docker pull ghcr.io/${{ github.repository }}:${{ needs.build.outputs.image_tag }}
-            docker compose up -d
+      - name: Trigger Portainer Webhook
+        run: |
+          curl -X POST "${{ secrets.PORTAINER_WEBHOOK_URL }}"
