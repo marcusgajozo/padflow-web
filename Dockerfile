@@ -15,4 +15,6 @@ RUN pnpm build
 FROM nginx:alpine AS runner
 COPY --from=builder /padflow/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/nginx.conf
+COPY env.sh /docker-entrypoint.d/40-env.sh
+RUN chmod +x /docker-entrypoint.d/40-env.sh
 CMD ["nginx", "-g", "daemon off;"]
