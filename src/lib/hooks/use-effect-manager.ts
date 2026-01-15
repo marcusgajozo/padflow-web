@@ -19,8 +19,6 @@ export function useEffectManager() {
   useEffect(() => {
     if (effectPads.length === 0) return;
 
-    console.log("🔄 Recriando a coleção de players de efeitos...");
-
     const urls: { [key: string]: string } = {};
 
     effectPads.forEach((pad) => {
@@ -28,9 +26,7 @@ export function useEffectManager() {
       urls[pad.id] = url;
     });
 
-    const players = new Players(urls, () => {
-      console.log("✅ Todos os efeitos foram carregados/recarregados.");
-    }).toDestination();
+    const players = new Players(urls, () => {}).toDestination();
 
     setPlayEffect((effectId: string) => {
       const player = players.player(effectId);

@@ -43,16 +43,12 @@ export function useRemoteHost() {
       .subscribe((status) => {
         if (status === "SUBSCRIBED") {
           channel.track({ user: "host" });
-          console.log(
-            `✅ Host a ouvir no canal: http://localhost:5173/?session=${roomId}`
-          );
         }
       });
 
     return () => {
       supabase.removeChannel(channel);
       setChannelHost(null);
-      console.log(`🚪 Canal ${roomId} fechado.`);
     };
   }, [
     decrementQuantityControllers,
@@ -75,7 +71,6 @@ export function useRemoteHost() {
         "broadcast",
         { event: TYPES_EVENTS_CHANNEL.PLAY_TONE },
         ({ payload }) => {
-          console.log(`🔊 Controle mandou tocar o tom: ${payload.key}`);
           playTone?.(payload.key);
         }
       )
@@ -96,10 +91,6 @@ export function useRemoteHost() {
         "broadcast",
         { event: TYPES_EVENTS_CHANNEL.CLIENT_REQUEST_STATE },
         () => {
-          console.log(
-            "Pedido de estado recebido do controle. A enviar dados..."
-          );
-
           channelHost.send({
             type: "broadcast",
             event: TYPES_EVENTS_CHANNEL.HOST_SYNC_STATE,

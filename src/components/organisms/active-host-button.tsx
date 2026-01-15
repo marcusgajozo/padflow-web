@@ -17,7 +17,6 @@ export const ActiveHostButton = () => {
   const openModal = useModalStore((state) => state.openModal);
 
   const handleClick = () => {
-    console.log("entrei", isRemoteControl);
     if (isRemoteControl) {
       openModal("remoteControl");
       return;

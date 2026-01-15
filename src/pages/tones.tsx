@@ -24,7 +24,6 @@ export function Tones() {
 
   const handleToneToggle = (tone: PadKey) => {
     if (isRemoteControl && channelControl) {
-      console.log(`🔊 Enviando o tom ${tone} para o canal de controle remoto.`);
       channelControl.send({
         type: "broadcast",
         event: TYPES_EVENTS_CHANNEL.PLAY_TONE,

@@ -52,8 +52,7 @@ export const useEffectStore = create<EffectStoreState & EffectStoreActions>()(
             }
           }
           setState({ effectPads: pads, isInitialized: true });
-        } catch (error) {
-          console.error("Falha ao carregar pads do IndexedDB", error);
+        } catch {
           setState({ isInitialized: true });
         }
       },

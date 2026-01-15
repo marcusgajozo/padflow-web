@@ -16,7 +16,6 @@ export function useToneManager() {
   const setTonesIsloading = useToneStore((state) => state.setTonesIsloading);
 
   useEffect(() => {
-    console.log("🧹 Criando o players de tons.");
     if (isRemoteControl) return;
 
     const players = new Players({
@@ -31,7 +30,6 @@ export function useToneManager() {
     playersRef.current = players;
 
     return () => {
-      console.log("🧹 Limpando o players de tons.");
       players.dispose();
     };
   }, [isRemoteControl, setTonesIsloading]);
@@ -40,7 +38,6 @@ export function useToneManager() {
     const players = playersRef.current;
     if (!players) return;
 
-    console.log("🔊 entrei som carregado", tonesIsloading);
     setPlayTone((tone) => {
       setActiveTone(tone);
       const player = players.player(tone);

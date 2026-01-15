@@ -40,13 +40,11 @@ export function useRemoteControl() {
   useEffect(() => {
     if (!roomId) return;
 
-    console.log(`Eu sou um controle remoto! Conectando à sala ${roomId}`);
     const channel = supabase.channel(roomId);
     setChannelControl(channel);
 
     channel.subscribe((status) => {
       if (status === "SUBSCRIBED") {
-        console.log(`✅ Controle remoto conectado ao canal: ${roomId}`);
         channel.track({ user: "controller" });
         setIsRemoteControl(true);
         setTonesIsloading(false);
@@ -54,7 +52,6 @@ export function useRemoteControl() {
     });
 
     return () => {
-      console.log(`🚪 Controle desconectando do canal ${channel.topic}`);
       supabase.removeChannel(channel);
       setChannelControl(null);
     };
@@ -68,7 +65,6 @@ export function useRemoteControl() {
         "broadcast",
         { event: TYPES_EVENTS_CHANNEL.HOST_SYNC_STATE },
         ({ payload }) => {
-          console.log("Estado recebido do host:", payload);
           if (payload.effectPads) {
             setEffectPadsRemote(payload.effectPads);
           }
