@@ -1,8 +1,8 @@
 import { useEffectStore } from "@/lib/stores/use-effect-store";
-import { useEffect, type ReactNode } from "react";
+import { useEffect } from "react";
 import { Players } from "tone";
 
-export function EffectManagerProvider({ children }: { children: ReactNode }) {
+export function useEffectManager() {
   const effectPads = useEffectStore((state) => state.effectPads);
   const isInitialized = useEffectStore((state) => state.isInitialized);
 
@@ -19,8 +19,6 @@ export function EffectManagerProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (effectPads.length === 0) return;
 
-    console.log("🔄 Recriando a coleção de players de efeitos...");
-
     const urls: { [key: string]: string } = {};
 
     effectPads.forEach((pad) => {
@@ -28,17 +26,18 @@ export function EffectManagerProvider({ children }: { children: ReactNode }) {
       urls[pad.id] = url;
     });
 
-    const players = new Players(urls, () => {
-      console.log("✅ Todos os efeitos foram carregados/recarregados.");
-    }).toDestination();
+    const players = new Players(urls, () => {}).toDestination();
 
     setPlayEffect((effectId: string) => {
       const player = players.player(effectId);
       if (player) {
-        if (player.state === "started") {
-          player.restart();
-        } else {
+        try {
+          if (player.state === "started") {
+            player.stop();
+          }
           player.start();
+        } catch (error) {
+          console.error("Erro ao tocar efeito:", error);
         }
       }
     });
@@ -50,6 +49,4 @@ export function EffectManagerProvider({ children }: { children: ReactNode }) {
       players.dispose();
     };
   }, [effectPads, setPlayEffect]);
-
-  return children;
 }

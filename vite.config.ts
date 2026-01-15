@@ -2,12 +2,17 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
+import { getLocalIP } from "./scripts/get-local-ip";
 
-// https://vite.dev/config/
+const localIP = getLocalIP();
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  define: {
+    __LOCAL_IP__: JSON.stringify(localIP),
+  },
   server: {
-    host: "0.0.0.0", // Escuta em todos os endereços de IP
+    host: "0.0.0.0",
     port: 5173,
   },
   resolve: {

@@ -1,14 +1,11 @@
 import { padsContinuos } from "@/lib/constants/pads";
 import { useEffect, useRef } from "react";
 import { Players } from "tone";
-import { useToneStore } from "../stores/use-tone-store";
 import { useRemoteControlStore } from "../stores/use-remote-control-store";
+import { useToneStore } from "../stores/use-tone-store";
+import { isMobile } from "../utils";
 
-interface ToneManagerProviderProps {
-  children?: React.ReactNode;
-}
-
-export function ToneManagerProvider({ children }: ToneManagerProviderProps) {
+export function useToneManager() {
   const tonesIsloading = useToneStore((state) => state.tonesIsloading);
   const playersRef = useRef<Players | null>(null);
   const isRemoteControl = useRemoteControlStore(
@@ -20,8 +17,10 @@ export function ToneManagerProvider({ children }: ToneManagerProviderProps) {
   const setTonesIsloading = useToneStore((state) => state.setTonesIsloading);
 
   useEffect(() => {
-    console.log("🧹 Criando o players de tons.");
-    if (isRemoteControl) return;
+    if (isRemoteControl || isMobile()) {
+      setTonesIsloading(false);
+      return;
+    }
 
     const players = new Players({
       urls: padsContinuos,
@@ -35,7 +34,6 @@ export function ToneManagerProvider({ children }: ToneManagerProviderProps) {
     playersRef.current = players;
 
     return () => {
-      console.log("🧹 Limpando o players de tons.");
       players.dispose();
     };
   }, [isRemoteControl, setTonesIsloading]);
@@ -44,7 +42,6 @@ export function ToneManagerProvider({ children }: ToneManagerProviderProps) {
     const players = playersRef.current;
     if (!players) return;
 
-    console.log("🔊 entrei som carregado", tonesIsloading);
     setPlayTone((tone) => {
       setActiveTone(tone);
       const player = players.player(tone);
@@ -59,6 +56,4 @@ export function ToneManagerProvider({ children }: ToneManagerProviderProps) {
       }
     });
   }, [tonesIsloading, setActiveTone, setPlayTone]);
-
-  return children;
 }

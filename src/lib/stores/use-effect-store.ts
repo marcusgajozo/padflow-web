@@ -1,6 +1,6 @@
+import { del, get, keys, set } from "idb-keyval";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { del, get, keys, set } from "idb-keyval";
 
 export interface EffectPad {
   id: string;
@@ -25,6 +25,7 @@ interface EffectStoreActions {
   handleDelete: (id: string) => Promise<void>;
   setEffectPadsRemote: (effectPadsRemote: EffectPadRemote[]) => void;
   setPlayEffect: (playEffect: EffectStoreState["playEffect"]) => void;
+  removePadId: (id: string) => void;
 }
 
 const INITIAL_EFFECT: EffectStoreState = {
@@ -52,18 +53,18 @@ export const useEffectStore = create<EffectStoreState & EffectStoreActions>()(
             }
           }
           setState({ effectPads: pads, isInitialized: true });
-        } catch (error) {
-          console.error("Falha ao carregar pads do IndexedDB", error);
+        } catch {
           setState({ isInitialized: true });
         }
       },
 
       addNewPad: async (file) => {
         const newPad: EffectPad = {
-          id: `effect-${Date.now()}`,
+          id: `effect-${Math.random().toString(36).slice(2, 8)}`,
           name: file.name.replace(/\.[^/.]+$/, ""),
           audioFile: file,
         };
+
         await set(newPad.id, newPad);
         setState((state) => ({
           effectPads: [...state.effectPads, newPad],
@@ -84,6 +85,14 @@ export const useEffectStore = create<EffectStoreState & EffectStoreActions>()(
       },
 
       setPlayEffect: (playEffect) => setState({ playEffect }),
+      removePadId: (id) =>
+        setState((state) => {
+          del(id);
+
+          return {
+            effectPads: state.effectPads.filter((pad) => pad.id !== id),
+          };
+        }),
     }),
     { name: "effect-store" }
   )

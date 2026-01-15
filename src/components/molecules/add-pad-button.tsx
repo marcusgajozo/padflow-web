@@ -13,6 +13,7 @@ export function AddPadButton({ onFileSelected }: AddPadButtonProps) {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       onFileSelected(event.target.files[0]);
+      inputRef.current!.value = "";
     }
   };
   return (

@@ -1,28 +1,32 @@
-import { useModalStore } from "@/lib/stores/use-modal-store";
+import { useModal } from "@/lib/hooks/use-modal";
 import { useRemoteHostStore } from "@/lib/stores/use-remote-host-store";
+import { useMemo } from "react";
 import QRCode from "react-qr-code";
 import { Modal } from "../molecules/modal";
 
 export function ModalActiveHost() {
-  const modal = useModalStore((state) => state.modal);
+  const { isOpen, close } = useModal("activeHost");
   const isRemoteHost = useRemoteHostStore((state) => state.isRemoteHost);
   const roomId = useRemoteHostStore((state) => state.roomId);
 
-  const openModal = useModalStore((state) => state.openModal);
   const resetRemoteHost = useRemoteHostStore((state) => state.resetRemoteHost);
   const toggleStatusRemoteHost = useRemoteHostStore(
     (state) => state.toggleStatusRemoteHost
   );
 
-  const remoteUrl = `${
-    window.location.origin || "http://localhost:5173"
-  }/tones/?session=${roomId}`;
+  const remoteUrl = useMemo(() => {
+    const origin = window.location.origin;
+
+    if (origin.includes("localhost") || origin.includes("127.0.0.1")) {
+      const port = origin.split(":")[2] || "5173";
+      return `http://${__LOCAL_IP__}:${port}/?session=${roomId}`;
+    }
+
+    return `${origin}/?session=${roomId}`;
+  }, [roomId]);
 
   return (
-    <Modal.Root
-      open={modal === "activeHost"}
-      onOpenChange={() => openModal(null)}
-    >
+    <Modal.Root open={isOpen} onOpenChange={close}>
       <Modal.Title>Remote Control</Modal.Title>
       <Modal.Content>
         {isRemoteHost && roomId ? (
@@ -34,6 +38,7 @@ export function ModalActiveHost() {
               <QRCode value={remoteUrl} size={160} />
             </div>
             <p className="text-xs text-slate-500 pt-2">Room ID: {roomId}</p>
+            <p>URL: {remoteUrl}</p>
           </div>
         ) : (
           <p className="text-center text-slate-400">
@@ -42,14 +47,12 @@ export function ModalActiveHost() {
         )}
       </Modal.Content>
       <Modal.Buttons>
-        <Modal.CloseButton onClick={() => openModal(null)}>
-          Close
-        </Modal.CloseButton>
+        <Modal.CloseButton onClick={close}>Close</Modal.CloseButton>
         <Modal.ActionButton
           onClick={() => {
             toggleStatusRemoteHost();
             if (isRemoteHost) {
-              openModal(null);
+              close();
               resetRemoteHost();
             }
           }}

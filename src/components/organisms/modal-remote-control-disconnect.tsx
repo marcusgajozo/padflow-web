@@ -1,32 +1,26 @@
-import { useModalStore } from "@/lib/stores/use-modal-store";
+import { useModal } from "@/lib/hooks/use-modal";
 import { useRemoteControlStore } from "@/lib/stores/use-remote-control-store";
 import { Modal } from "../molecules/modal";
 
-export function ModalRemoteControl() {
-  const modal = useModalStore((state) => state.modal);
-  const openModal = useModalStore((state) => state.openModal);
+export function ModalRemoteControlDisconnect() {
+  const { isOpen, close } = useModal("remoteControlDisconnect");
 
   const resetControl = useRemoteControlStore((state) => state.resetControl);
 
   return (
-    <Modal.Root
-      open={modal === "remoteControl"}
-      onOpenChange={() => openModal(null)}
-    >
+    <Modal.Root open={isOpen} onOpenChange={close}>
       <Modal.Title>Remote Control</Modal.Title>
       <Modal.Content>
         <p className="text-center text-slate-400">
-          you disconnect from the host?
+          you want to disconnect from the host?
         </p>
       </Modal.Content>
       <Modal.Buttons>
-        <Modal.CloseButton onClick={() => openModal(null)}>
-          Close
-        </Modal.CloseButton>
+        <Modal.CloseButton onClick={close}>Close</Modal.CloseButton>
         <Modal.ActionButton
           onClick={() => {
             resetControl();
-            openModal(null);
+            close();
           }}
         >
           Disconnect

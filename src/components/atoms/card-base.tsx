@@ -12,6 +12,7 @@ export function CardBase({
   onClick,
   active = false,
   variant = "default",
+  ...props
 }: CardBaseProps & React.HTMLAttributes<HTMLDivElement>) {
   const baseStyles =
     "rounded-2xl transition-all duration-200 cursor-pointer select-none min-h-[120px] flex items-center justify-center relative overflow-hidden";
@@ -31,6 +32,7 @@ export function CardBase({
     <div
       className={cn(baseStyles, variants[variant], className)}
       onClick={onClick}
+      {...props}
     >
       {children}
     </div>

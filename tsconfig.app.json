@@ -3,11 +3,7 @@
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2022",
     "useDefineForClassFields": true,
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
     /* Bundler mode */
@@ -27,18 +23,10 @@
     /* Alias Configuration */
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "@audios/*": [
-        "src/assets/audios/*"
-      ],
-      "@components/*": [
-        "src/components/*"
-      ],
+      "@/*": ["src/*"],
+      "@audios/*": ["src/assets/audios/*"],
+      "@components/*": ["src/components/*"]
     }
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src", "scripts/get-local-ip.ts"]
 }
