@@ -25,6 +25,7 @@ interface EffectStoreActions {
   handleDelete: (id: string) => Promise<void>;
   setEffectPadsRemote: (effectPadsRemote: EffectPadRemote[]) => void;
   setPlayEffect: (playEffect: EffectStoreState["playEffect"]) => void;
+  removePadId: (id: string) => void;
 }
 
 const INITIAL_EFFECT: EffectStoreState = {
@@ -83,6 +84,10 @@ export const useEffectStore = create<EffectStoreState & EffectStoreActions>()(
       },
 
       setPlayEffect: (playEffect) => setState({ playEffect }),
+      removePadId: (id) =>
+        setState((state) => ({
+          effectPads: state.effectPads.filter((pad) => pad.id !== id),
+        })),
     }),
     { name: "effect-store" }
   )
