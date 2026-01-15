@@ -6,13 +6,7 @@ import { useEffectStore } from "../stores/use-effect-store";
 import { useRemoteControlStore } from "../stores/use-remote-control-store";
 import { useToneStore } from "../stores/use-tone-store";
 
-interface RemoteControlProviderProps {
-  children?: React.ReactNode;
-}
-
-export function RemoteControlProvider({
-  children,
-}: RemoteControlProviderProps) {
+export function useRemoteControl() {
   const roomId = useRemoteControlStore((state) => state.roomId);
   const channelControl = useRemoteControlStore((state) => state.channelControl);
   const isRemoteControl = useRemoteControlStore(
@@ -40,6 +34,8 @@ export function RemoteControlProvider({
       setRoomId(roomIdFromUrl);
     }
   }, [searchParams, setRoomId]);
+
+  useEffect(() => {});
 
   useEffect(() => {
     if (!roomId) return;
@@ -113,6 +109,4 @@ export function RemoteControlProvider({
       event: TYPES_EVENTS_CHANNEL.CLIENT_REQUEST_STATE,
     });
   }, [channelControl, isRemoteControl]);
-
-  return children;
 }

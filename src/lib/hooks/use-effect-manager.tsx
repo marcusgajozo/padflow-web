@@ -1,8 +1,8 @@
 import { useEffectStore } from "@/lib/stores/use-effect-store";
-import { useEffect, type ReactNode } from "react";
+import { useEffect } from "react";
 import { Players } from "tone";
 
-export function EffectManagerProvider({ children }: { children: ReactNode }) {
+export function useEffectManager() {
   const effectPads = useEffectStore((state) => state.effectPads);
   const isInitialized = useEffectStore((state) => state.isInitialized);
 
@@ -50,6 +50,4 @@ export function EffectManagerProvider({ children }: { children: ReactNode }) {
       players.dispose();
     };
   }, [effectPads, setPlayEffect]);
-
-  return children;
 }

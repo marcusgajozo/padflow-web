@@ -4,11 +4,7 @@ import { Players } from "tone";
 import { useToneStore } from "../stores/use-tone-store";
 import { useRemoteControlStore } from "../stores/use-remote-control-store";
 
-interface ToneManagerProviderProps {
-  children?: React.ReactNode;
-}
-
-export function ToneManagerProvider({ children }: ToneManagerProviderProps) {
+export function useToneManager() {
   const tonesIsloading = useToneStore((state) => state.tonesIsloading);
   const playersRef = useRef<Players | null>(null);
   const isRemoteControl = useRemoteControlStore(
@@ -59,6 +55,4 @@ export function ToneManagerProvider({ children }: ToneManagerProviderProps) {
       }
     });
   }, [tonesIsloading, setActiveTone, setPlayTone]);
-
-  return children;
 }

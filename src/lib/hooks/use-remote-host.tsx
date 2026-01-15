@@ -5,13 +5,7 @@ import { TYPES_EVENTS_CHANNEL } from "../constants/channel";
 import { useEffectStore } from "../stores/use-effect-store";
 import { useRemoteHostStore } from "../stores/use-remote-host-store";
 
-interface RemoteControlManagerProviderProps {
-  children?: React.ReactNode;
-}
-
-export function RemoteHostProvider({
-  children,
-}: RemoteControlManagerProviderProps) {
+export function useRemoteHost() {
   const isRemoteHost = useRemoteHostStore((state) => state.isRemoteHost);
   const channelHost = useRemoteHostStore((state) => state.channelHost);
   const effectPads = useEffectStore((state) => state.effectPads);
@@ -165,6 +159,4 @@ export function RemoteHostProvider({
       },
     });
   }, [activeTone, channelHost, isRemoteHost]);
-
-  return children;
 }
