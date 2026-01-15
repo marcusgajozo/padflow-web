@@ -1,6 +1,6 @@
 import { useToneStore } from "@/lib/stores/use-tone-store";
 import { supabase } from "@/lib/supabase-client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { TYPES_EVENTS_CHANNEL } from "../constants/channel";
 import { useEffectStore } from "../stores/use-effect-store";
 import { useRemoteHostStore } from "../stores/use-remote-host-store";
@@ -24,6 +24,18 @@ export function useRemoteHost() {
     (state) => state.decrementQuantityControllers
   );
 
+  const playEffectRef = useRef(playEffect);
+  const playToneRef = useRef(playTone);
+  const tonesIsloadingRef = useRef(tonesIsloading);
+  const effectPadsRef = useRef(effectPads);
+
+  useEffect(() => {
+    playEffectRef.current = playEffect;
+    playToneRef.current = playTone;
+    tonesIsloadingRef.current = tonesIsloading;
+    effectPadsRef.current = effectPads;
+  }, [playEffect, playTone, tonesIsloading, effectPads]);
+
   useEffect(() => {
     if (!isRemoteHost) return;
 
@@ -40,6 +52,53 @@ export function useRemoteHost() {
       .on("presence", { event: "leave" }, () => {
         decrementQuantityControllers();
       })
+      .on(
+        "broadcast",
+        { event: TYPES_EVENTS_CHANNEL.PLAY_EFFECT },
+        ({ payload }) => {
+          console.log(
+            "Recebido evento de play effect pelo canal",
+            payload.effectId
+          );
+          playEffectRef.current?.(payload.effectId);
+        }
+      )
+      .on(
+        "broadcast",
+        { event: TYPES_EVENTS_CHANNEL.PLAY_TONE },
+        ({ payload }) => {
+          playToneRef.current?.(payload.key);
+        }
+      )
+      .on(
+        "broadcast",
+        { event: TYPES_EVENTS_CHANNEL.GET_TONE_IS_LOADING },
+        () => {
+          channel.send({
+            type: "broadcast",
+            event: TYPES_EVENTS_CHANNEL.TONE_IS_LOADING,
+            payload: {
+              toneIsloagind: tonesIsloadingRef.current,
+            },
+          });
+        }
+      )
+      .on(
+        "broadcast",
+        { event: TYPES_EVENTS_CHANNEL.CLIENT_REQUEST_STATE },
+        () => {
+          channel.send({
+            type: "broadcast",
+            event: TYPES_EVENTS_CHANNEL.HOST_SYNC_STATE,
+            payload: {
+              effectPads: effectPadsRef.current.map((pad) => ({
+                id: pad.id,
+                name: pad.name,
+              })),
+            },
+          });
+        }
+      )
       .subscribe((status) => {
         if (status === "SUBSCRIBED") {
           channel.track({ user: "host" });
@@ -51,65 +110,11 @@ export function useRemoteHost() {
       setChannelHost(null);
     };
   }, [
-    decrementQuantityControllers,
-    incrementQuantityControllers,
     isRemoteHost,
     setChannelHost,
     setRoomId,
-  ]);
-
-  useEffect(() => {
-    if (!channelHost || !isRemoteHost) return;
-
-    channelHost
-      .on(
-        "broadcast",
-        { event: TYPES_EVENTS_CHANNEL.PLAY_EFFECT },
-        ({ payload }) => playEffect?.(payload.effectId)
-      )
-      .on(
-        "broadcast",
-        { event: TYPES_EVENTS_CHANNEL.PLAY_TONE },
-        ({ payload }) => {
-          playTone?.(payload.key);
-        }
-      )
-      .on(
-        "broadcast",
-        { event: TYPES_EVENTS_CHANNEL.GET_TONE_IS_LOADING },
-        () => {
-          channelHost.send({
-            type: "broadcast",
-            event: TYPES_EVENTS_CHANNEL.TONE_IS_LOADING,
-            payload: {
-              toneIsloagind: tonesIsloading,
-            },
-          });
-        }
-      )
-      .on(
-        "broadcast",
-        { event: TYPES_EVENTS_CHANNEL.CLIENT_REQUEST_STATE },
-        () => {
-          channelHost.send({
-            type: "broadcast",
-            event: TYPES_EVENTS_CHANNEL.HOST_SYNC_STATE,
-            payload: {
-              effectPads: effectPads.map((pad) => ({
-                id: pad.id,
-                name: pad.name,
-              })),
-            },
-          });
-        }
-      );
-  }, [
-    channelHost,
-    effectPads,
-    isRemoteHost,
-    playEffect,
-    playTone,
-    tonesIsloading,
+    incrementQuantityControllers,
+    decrementQuantityControllers,
   ]);
 
   useEffect(() => {
