@@ -1,14 +1,16 @@
 import { useEffectStore } from "@/lib/stores/use-effect-store";
 import { useEffect } from "react";
-import { Players } from "tone";
+import { Players, getContext, start } from "tone";
+import { useAudioContextStart } from "./use-audio-context-start";
 
 export function useEffectManager() {
   const effectPads = useEffectStore((state) => state.effectPads);
   const isInitialized = useEffectStore((state) => state.isInitialized);
 
   const setPlayEffect = useEffectStore((state) => state.setPlayEffect);
-
   const initializePads = useEffectStore((state) => state.initializePads);
+
+  useAudioContextStart();
 
   useEffect(() => {
     if (!isInitialized) {
@@ -29,16 +31,27 @@ export function useEffectManager() {
     const players = new Players(urls, () => {}).toDestination();
 
     setPlayEffect((effectId: string) => {
-      const player = players.player(effectId);
-      if (player) {
-        try {
-          if (player.state === "started") {
-            player.stop();
-          }
-          player.start();
-        } catch (error) {
-          console.error("Erro ao tocar efeito:", error);
+      try {
+        const context = getContext();
+        if (context.state === "suspended") {
+          start().catch((error) => {
+            console.error("Erro ao iniciar AudioContext:", error);
+          });
+          return;
         }
+
+        const player = players.player(effectId);
+        if (!player) {
+          console.warn(`Player não encontrado para o efeito: ${effectId}`);
+          return;
+        }
+
+        if (player.state === "started") {
+          player.stop();
+        }
+        player.start();
+      } catch (error) {
+        console.error("Erro ao tocar efeito:", error);
       }
     });
 

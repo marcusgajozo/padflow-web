@@ -34,6 +34,21 @@ export function useRemoteControl() {
   useEffect(() => {
     if (!channelControl || !isRemoteControl) return;
 
+    channelControl.on("presence", { event: "leave" }, ({ leftPresences }) => {
+      const hostLeft = leftPresences.some(
+        (user: Record<string, unknown>) => user.user === "host"
+      );
+      if (hostLeft) {
+        setTimeout(() => {
+          open();
+        }, 500);
+      }
+    });
+  }, [channelControl, isRemoteControl, open]);
+
+  useEffect(() => {
+    if (!channelControl || !isRemoteControl) return;
+
     channelControl
       .on(
         "broadcast",

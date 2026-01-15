@@ -1,5 +1,6 @@
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { create } from "zustand";
+import { devtools, persist } from "zustand/middleware";
 
 interface RemoteHostStoreState {
   isRemoteHost: boolean;
@@ -27,22 +28,35 @@ const INITIAL_STATE: RemoteHostStoreState = {
 
 export const useRemoteHostStore = create<
   RemoteHostStoreState & RemoteHostStoreActions
->((set) => ({
-  ...INITIAL_STATE,
-  toggleStatusRemoteHost: () =>
-    set(({ isRemoteHost }) => ({
-      isRemoteHost: !isRemoteHost,
-    })),
-  setIsRemoteHost: (isRemoteHost) => set(() => ({ isRemoteHost })),
-  incrementQuantityControllers: () =>
-    set((state) => ({
-      quantityControllers: state.quantityControllers + 1,
-    })),
-  decrementQuantityControllers: () =>
-    set((state) => ({
-      quantityControllers: Math.max(state.quantityControllers - 1, 0),
-    })),
-  setRoomId: (roomId) => set(() => ({ roomId: roomId })),
-  setChannelHost: (channelHost) => set(() => ({ channelHost })),
-  resetRemoteHost: () => set(() => ({ ...INITIAL_STATE })),
-}));
+>()(
+  devtools(
+    persist(
+      (set) => ({
+        ...INITIAL_STATE,
+        toggleStatusRemoteHost: () =>
+          set(({ isRemoteHost }) => ({
+            isRemoteHost: !isRemoteHost,
+          })),
+        setIsRemoteHost: (isRemoteHost) => set(() => ({ isRemoteHost })),
+        incrementQuantityControllers: () =>
+          set((state) => ({
+            quantityControllers: state.quantityControllers + 1,
+          })),
+        decrementQuantityControllers: () =>
+          set((state) => ({
+            quantityControllers: Math.max(state.quantityControllers - 1, 0),
+          })),
+        setRoomId: (roomId) => set(() => ({ roomId: roomId })),
+        setChannelHost: (channelHost) => set(() => ({ channelHost })),
+        resetRemoteHost: () => set(() => ({ ...INITIAL_STATE })),
+      }),
+      {
+        name: "remote-host-store",
+        partialize: (state) => {
+          const { channelHost: _, ...rest } = state;
+          return rest;
+        },
+      }
+    )
+  )
+);
