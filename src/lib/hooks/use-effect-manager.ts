@@ -31,10 +31,13 @@ export function useEffectManager() {
     setPlayEffect((effectId: string) => {
       const player = players.player(effectId);
       if (player) {
-        if (player.state === "started") {
-          player.restart();
-        } else {
+        try {
+          if (player.state === "started") {
+            player.stop();
+          }
           player.start();
+        } catch (error) {
+          console.error("Erro ao tocar efeito:", error);
         }
       }
     });
