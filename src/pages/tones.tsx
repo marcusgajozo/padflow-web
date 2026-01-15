@@ -5,6 +5,7 @@ import { TYPES_EVENTS_CHANNEL } from "@/lib/constants/channel";
 import { padsContinuos } from "@/lib/constants/pads";
 import { useRemoteControlStore } from "@/lib/stores/use-remote-control-store";
 import { useToneStore } from "@/lib/stores/use-tone-store";
+import { isMobile } from "@/lib/utils";
 import { Fragment } from "react/jsx-runtime";
 
 type PadKey = keyof typeof padsContinuos;
@@ -33,6 +34,17 @@ export function Tones() {
     }
     playTone?.(tone);
   };
+
+  if (isMobile() && !isRemoteControl) {
+    return (
+      <div className="space-y-6">
+        <p className="text-center text-slate-400">
+          Musical tones are not available on mobile devices. Please access the
+          application from a desktop or laptop for the full experience.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

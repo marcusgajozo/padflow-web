@@ -1,8 +1,9 @@
 import { padsContinuos } from "@/lib/constants/pads";
 import { useEffect, useRef } from "react";
 import { Players } from "tone";
-import { useToneStore } from "../stores/use-tone-store";
 import { useRemoteControlStore } from "../stores/use-remote-control-store";
+import { useToneStore } from "../stores/use-tone-store";
+import { isMobile } from "../utils";
 
 export function useToneManager() {
   const tonesIsloading = useToneStore((state) => state.tonesIsloading);
@@ -16,7 +17,10 @@ export function useToneManager() {
   const setTonesIsloading = useToneStore((state) => state.setTonesIsloading);
 
   useEffect(() => {
-    if (isRemoteControl) return;
+    if (isRemoteControl || isMobile()) {
+      setTonesIsloading(false);
+      return;
+    }
 
     const players = new Players({
       urls: padsContinuos,
