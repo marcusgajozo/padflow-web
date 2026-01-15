@@ -1,25 +1,19 @@
-import { supabase } from "@/lib/supabase-client";
 import { useEffect } from "react";
 import { useSearchParams } from "react-router";
 import { TYPES_EVENTS_CHANNEL } from "../constants/channel";
 import { useEffectStore } from "../stores/use-effect-store";
 import { useRemoteControlStore } from "../stores/use-remote-control-store";
 import { useToneStore } from "../stores/use-tone-store";
+import { useModal } from "./use-modal";
 
 export function useRemoteControl() {
-  const roomId = useRemoteControlStore((state) => state.roomId);
   const channelControl = useRemoteControlStore((state) => state.channelControl);
   const isRemoteControl = useRemoteControlStore(
     (state) => state.isRemoteControl
   );
+  const connected = useRemoteControlStore((state) => state.connected);
 
-  const setRoomId = useRemoteControlStore((state) => state.setRoomId);
-  const setIsRemoteControl = useRemoteControlStore(
-    (state) => state.setIsRemoteControl
-  );
-  const setChannelControl = useRemoteControlStore(
-    (state) => state.setChannelControl
-  );
+  const { open } = useModal("remoteControlConnect");
   const setEffectPadsRemote = useEffectStore(
     (state) => state.setEffectPadsRemote
   );
@@ -27,35 +21,15 @@ export function useRemoteControl() {
   const setTonesIsloading = useToneStore((state) => state.setTonesIsloading);
 
   const [searchParams] = useSearchParams();
+  const paramsRoomId = searchParams.get("session");
 
   useEffect(() => {
-    const roomIdFromUrl = searchParams.get("session");
-    if (roomIdFromUrl) {
-      setRoomId(roomIdFromUrl);
+    if (connected) return;
+
+    if (isRemoteControl || paramsRoomId) {
+      open();
     }
-  }, [searchParams, setRoomId]);
-
-  useEffect(() => {});
-
-  useEffect(() => {
-    if (!roomId) return;
-
-    const channel = supabase.channel(roomId);
-    setChannelControl(channel);
-
-    channel.subscribe((status) => {
-      if (status === "SUBSCRIBED") {
-        channel.track({ user: "controller" });
-        setIsRemoteControl(true);
-        setTonesIsloading(false);
-      }
-    });
-
-    return () => {
-      supabase.removeChannel(channel);
-      setChannelControl(null);
-    };
-  }, [roomId, setChannelControl, setIsRemoteControl, setTonesIsloading]);
+  }, [connected, isRemoteControl, open, paramsRoomId]);
 
   useEffect(() => {
     if (!channelControl || !isRemoteControl) return;
@@ -87,15 +61,6 @@ export function useRemoteControl() {
     setEffectPadsRemote,
     setTonesIsloading,
   ]);
-
-  useEffect(() => {
-    if (!channelControl || !isRemoteControl) return;
-
-    channelControl.send({
-      type: "broadcast",
-      event: TYPES_EVENTS_CHANNEL.CLIENT_REQUEST_STATE,
-    });
-  }, [channelControl, isRemoteControl]);
 
   useEffect(() => {
     if (!channelControl || !isRemoteControl) return;

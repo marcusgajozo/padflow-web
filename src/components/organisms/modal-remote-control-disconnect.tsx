@@ -2,8 +2,8 @@ import { useModal } from "@/lib/hooks/use-modal";
 import { useRemoteControlStore } from "@/lib/stores/use-remote-control-store";
 import { Modal } from "../molecules/modal";
 
-export function ModalRemoteControlReconnect() {
-  const { isOpen, close } = useModal("remoteControl");
+export function ModalRemoteControlDisconnect() {
+  const { isOpen, close } = useModal("remoteControlDisconnect");
 
   const resetControl = useRemoteControlStore((state) => state.resetControl);
 
@@ -12,7 +12,7 @@ export function ModalRemoteControlReconnect() {
       <Modal.Title>Remote Control</Modal.Title>
       <Modal.Content>
         <p className="text-center text-slate-400">
-          you reconnect from the host?
+          you want to disconnect from the host?
         </p>
       </Modal.Content>
       <Modal.Buttons>
@@ -23,7 +23,7 @@ export function ModalRemoteControlReconnect() {
             close();
           }}
         >
-          Reconect
+          Disconnect
         </Modal.ActionButton>
       </Modal.Buttons>
     </Modal.Root>

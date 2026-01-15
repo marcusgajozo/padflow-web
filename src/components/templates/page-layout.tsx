@@ -6,7 +6,8 @@ import { useToneManager } from "@/lib/hooks/use-tone-manager";
 import { Outlet } from "react-router";
 import { ActiveHostButton } from "../organisms/active-host-button";
 import { ModalActiveHost } from "../organisms/modal-active-host";
-import { ModalRemoteControl } from "../organisms/modal-remote-control";
+import { ModalRemoteControlConnect } from "../organisms/modal-remote-control-connect";
+import { ModalRemoteControlDisconnect } from "../organisms/modal-remote-control-disconnect";
 
 export function PageLayout() {
   useEffectManager();
@@ -23,7 +24,8 @@ export function PageLayout() {
       <div className="fixed bottom-8 right-7 z-50">
         <ActiveHostButton />
         <ModalActiveHost />
-        <ModalRemoteControl />
+        <ModalRemoteControlConnect />
+        <ModalRemoteControlDisconnect />
       </div>
     </div>
   );

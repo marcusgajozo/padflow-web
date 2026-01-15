@@ -1,11 +1,11 @@
 "use client";
 
+import { useModal } from "@/lib/hooks/use-modal";
 import { useRemoteControlStore } from "@/lib/stores/use-remote-control-store";
 import { useRemoteHostStore } from "@/lib/stores/use-remote-host-store";
 import { cn } from "@/lib/utils";
 import { Cloud, CloudOff, Gamepad2 } from "lucide-react";
 import { Icon } from "../atoms/icon";
-import { useModalStore } from "@/lib/stores/use-modal-store";
 
 export const ActiveHostButton = () => {
   const isRemoteHost = useRemoteHostStore((state) => state.isRemoteHost);
@@ -14,14 +14,15 @@ export const ActiveHostButton = () => {
     (state) => state.isRemoteControl
   );
 
-  const openModal = useModalStore((state) => state.openModal);
+  const { open: openActiveHost } = useModal("activeHost");
+  const { open: openRemoteControl } = useModal("remoteControlDisconnect");
 
   const handleClick = () => {
     if (isRemoteControl) {
-      openModal("remoteControl");
+      openRemoteControl();
       return;
     }
-    openModal("activeHost");
+    openActiveHost();
   };
 
   return (

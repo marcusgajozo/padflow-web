@@ -38,6 +38,7 @@ export function ModalActiveHost() {
               <QRCode value={remoteUrl} size={160} />
             </div>
             <p className="text-xs text-slate-500 pt-2">Room ID: {roomId}</p>
+            <p>URL: {remoteUrl}</p>
           </div>
         ) : (
           <p className="text-center text-slate-400">
