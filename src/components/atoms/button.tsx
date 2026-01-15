@@ -5,6 +5,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "ghost" | "danger";
   size?: "sm" | "md" | "lg";
   children: ReactNode;
+  isLoading?: boolean;
 }
 
 export function Button({
@@ -12,6 +13,8 @@ export function Button({
   size = "md",
   className,
   children,
+  isLoading = false,
+  disabled,
   ...props
 }: ButtonProps) {
   const baseStyles =
@@ -36,16 +39,20 @@ export function Button({
 
   return (
     <button
+      {...props}
       className={cn(
         baseStyles,
         variants[variant],
         sizes[size],
         className,
-        "cursor-pointer"
+        "cursor-pointer flex items-center justify-center space-x-2"
       )}
-      {...props}
+      disabled={isLoading || disabled}
     >
       {children}
+      {isLoading && (
+        <div className="animate-spin rounded-full border-4 border-t-4 border-t-transparent border-white w-6 h-6 ml-2" />
+      )}
     </button>
   );
 }

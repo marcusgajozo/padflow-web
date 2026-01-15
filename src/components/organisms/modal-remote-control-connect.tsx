@@ -67,7 +67,7 @@ export function ModalRemoteControlConnect() {
           onClick={() => {
             handleConnect();
           }}
-          disabled={isLoading}
+          isLoading={isLoading}
         >
           Connect
         </Modal.ActionButton>
