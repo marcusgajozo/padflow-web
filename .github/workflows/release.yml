@@ -31,6 +31,7 @@ jobs:
       - name: Rodar Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HUSKY: 0
         uses: cycjimmy/semantic-release-action@v4
         with:
           semantic_version: 19
