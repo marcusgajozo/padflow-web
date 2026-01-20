@@ -1,0 +1,49 @@
+name: Release Automatizada
+
+on:
+  push:
+    branches:
+      - main 
+
+permissions:
+  contents: write 
+  issues: write
+  pull-requests: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "lts/*"
+
+      - name: Instalar Dependências
+        run: npm install --legacy-peer-deps
+
+      - name: Rodar Semantic Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN_ADMIN }}
+          HUSKY: 0
+        uses: cycjimmy/semantic-release-action@v4
+        with:
+          semantic_version: 19
+          branches: |
+            [
+              '+([0-9])?(.{+([0-9]),x}).x',
+              'main',
+              'next',
+              'next-major',
+              {name: 'beta', prerelease: true},
+              {name: 'alpha', prerelease: true}
+            ]
+          extra_plugins: |
+            @semantic-release/changelog
+            @semantic-release/git
