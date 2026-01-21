@@ -7,7 +7,7 @@ import { routes } from "./routes";
 
 export const router = createBrowserRouter([
   {
-    path: "/",
+    path: routes.ROOT,
     element: <PageLayout />,
     children: [
       {
